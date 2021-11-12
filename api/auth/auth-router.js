@@ -4,7 +4,18 @@ checkUsernameTaken}=require('./auth-middleware')
 const bcrypt=require('bcryptjs')
 const Users=require('../users/users-model')
 
-router.post('/register', (req, res, next) => {
+router.get('/',(req,res,next)=>{
+  Users.find()
+  .then(users=>{
+    res.status(200).json(users)
+  })
+  .catch(next)
+})
+
+router.post('/register', 
+providedUsernamePassword,
+checkUsernameTaken,
+(req, res, next) => {
   const {username, password}=req.body
   const hash=bcrypt.hashSync(password,8)
   Users.add({username,password:hash})
