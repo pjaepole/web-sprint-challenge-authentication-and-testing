@@ -4,7 +4,7 @@ const Users= require('../users/users-model')
 
 const providedUsernamePassword = (req,res,next)=>{
     if(!req.body.username || !req.body.password){
-        res.json({message:"username and password required"})
+        res.status(401).json({message:"username and password required"})
     } else {
         next()
     }
@@ -16,7 +16,7 @@ const checkUsernameTakenRegister = async (req, res, next) => {
       if(!user){
         next()
       } else {
-        res.json({message:"username taken"})
+        res.status(403).json({message:"username taken"})
       }
     }
     catch(err){
