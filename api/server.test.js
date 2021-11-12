@@ -28,3 +28,16 @@ describe('[GET] /api/auth', () => {
     expect(res.body).toHaveLength(3)
   })
 })
+
+
+describe('[POST] /api/auth/register', () => {
+  test('able to register a new user', async () => {
+    const sanitycheck = await request(server).get('/api/auth')
+    expect(sanitycheck.body).toHaveLength(3)
+  })
+  test('able to register new user and return the user id and username', async()=>{
+    const res = await request(server).post('/api/auth/register').send({username:'tanjiro',password:'tanjiro'})
+    expect(res.status).toBe(201)
+    expect(res.body).toMatchObject({id:4,username:"tanjiro"})
+  })
+})
