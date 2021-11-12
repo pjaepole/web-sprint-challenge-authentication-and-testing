@@ -10,7 +10,7 @@ const providedUsernamePassword = (req,res,next)=>{
     }
 }
 
-const checkUsernameTaken = async (req, res, next) => {
+const checkUsernameTakenRegister = async (req, res, next) => {
     try{
       const [user]=await Users.findBy({username: req.body.username})
       if(!user){
@@ -25,7 +25,22 @@ const checkUsernameTaken = async (req, res, next) => {
   
   }
 
+  const checkUsernameExistsLogin = async (req, res, next) => {
+    try{
+      const [user]=await Users.findBy({username: req.body.username})
+      if(!user){
+        next({ status:401, message: 'Invalid credentials'})
+      } else {
+        req.user=user
+        next()
+      }
+    }
+    catch(err){
+      next(err)
+    }
+  }
 module.exports={
     providedUsernamePassword,
-    checkUsernameTaken,
+    checkUsernameTakenRegister,
+    checkUsernameExistsLogin
 }

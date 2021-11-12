@@ -1,9 +1,11 @@
 const router = require('express').Router();
 const {providedUsernamePassword,
-checkUsernameTaken}=require('./auth-middleware')
+  checkUsernameTakenRegister,
+  checkUsernameExistsLogin}=require('./auth-middleware')
 const bcrypt=require('bcryptjs')
 const Users=require('../users/users-model')
-
+const jwt = require('jsonwebtoken')
+const {JWT_SECRET}=require('../secrets/index')
 router.get('/',(req,res,next)=>{
   Users.find()
   .then(users=>{
@@ -14,7 +16,7 @@ router.get('/',(req,res,next)=>{
 
 router.post('/register', 
 providedUsernamePassword,
-checkUsernameTaken,
+checkUsernameTakenRegister,
 (req, res, next) => {
   const {username, password}=req.body
   const hash=bcrypt.hashSync(password,8)
@@ -50,8 +52,30 @@ checkUsernameTaken,
   */
 });
 
-router.post('/login', (req, res) => {
-  res.end('implement login, please!');
+function buildToken(user){
+  const payload={
+    subject: user.user_id,
+    username: user.username,
+  }
+  const options ={
+    expiresIn:'1d',
+  }
+  return jwt.sign(payload, JWT_SECRET,options)
+}
+
+router.post('/login',
+  providedUsernamePassword,
+  checkUsernameExistsLogin,
+  (req, res, next) => {
+    if(bcrypt.compareSync(req.body.password, req.user.password)){
+      const token = buildToken(req.user)
+      res.json({
+        "message": `welcome, ${req.user.username}`,
+        token,
+      })
+    } else {
+      next({ status:401, message: 'Invalid credentials'})
+    }
   /*
     IMPLEMENT
     You are welcome to build additional middlewares to help with the endpoint's functionality.
